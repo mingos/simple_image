@@ -1,0 +1,58 @@
+= SimpleImage: RMagickを利用した画像処理を簡単にできるクラスライブラリ
+
+== SimpleImageとは
+RMagickを利用して画像のフォーマット変換およびリサイズなどを
+より扱いやすくしたクラスです
+
+== 作者
+Ryohei Watanabe <watanabe00@gmail.com>
+http://d.hatena.ne.jp/mingos/
+
+== インストール
+ * パスの通った場所にsimple_image.rbを配置
+ * 利用するプログラムからrequire 'simple_image'する
+
+ rails内で使いたい場合は、{RAILS_ROOT}/lib/simple_image.rbに置くと自動でrequire
+ されるので使いやすいかも。
+
+== 使用例
+
+==== PNGをGIFに変換して保存
+ image = SimpleImage.from_file('sample.png')
+ image.to_gif
+ image.path = 'sample.gif'
+ image.save
+
+=== PNGをJPGに変換して保存
+ image = SimpleImage.from_file('sample.png')
+ image.to_jpg
+ image.quality = 60 # 画質を60に設定
+ image.path = 'sample.jpg'
+ image.save
+
+#==== リサイズ
+ 30x50にリサイズして、pngに変換して保存
+ image.resize(30, 50)
+ image.to_png
+ image.path = 'new.png'
+ image.save
+
+==== 切り取り
+ # (0,30)から100x120の部分を切り取る
+ image.crop({
+   :x => 0, :y => 30,
+   :width => 100, :height => 120
+ })
+ 
+==== 画像の中心を切り取る
+ # 中心から100x100の部分を切り取る
+ image.crop_center(100, 100)
+
+#==== 指定した座標に画像を重ねる
+ # (0, 50)にsample.pngを合成
+ image.composite('sample.png', 0, 50)
+
+#==== 中心に画像を重ねる
+ # sample.pngを中心に合成
+ image.composite_center('sample.png')
+
