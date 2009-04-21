@@ -416,6 +416,30 @@ class SimpleImage
   def comment
     @image['comment']
   end
+
+  # 透明な画像を返す
+  # 例: 1x1の透明なGIFとPNGを生成
+  # blank = SimpleImage.create_blank_image(1, 1, :format => 'GIF')
+  # blank = SimpleImage.create_blank_image(1, 1, :format => 'PNG')
+  #
+  #_width_:: 幅
+  #_height_:: 高さ
+  #_opts_:: オプション
+  #         :fromat => 画像フォーマット。'GIF'または'PNG'を指定
+  #         :background_color => 背景色。透明にする場合は'none'を指定
+  #
+  #戻り値:: SimpleImage
+  def self.create_blank_image(width, height, opts = {})
+    opts[:format] = 'GIF' unless opts.key?(:format)
+    opts[:background_color] = 'none' unless opts.key?(:background_color)
+    tmp = Magick::Image.new(width, height){
+      self.background_color = opts[:background_color]
+      self.format = opts[:format]
+    }
+    image = SimpleImage.from_blob(tmp.to_blob)
+    image.path = "blank.#{image.ext}"
+    image
+  end
   
 private
   def initialize(image)
