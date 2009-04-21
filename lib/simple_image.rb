@@ -2,12 +2,13 @@ $KCODE = 'u'
 require 'jcode'
 require 'rubygems'
 require 'RMagick'
+require 'base64'
 
 #
 #= RMagickを利用した画像処理を簡単にできるクラスライブラリ
 #
-# Author:: Ryohei Watanabe (watanabe00@gmail.com)
-# Version:: 1.1 2008-05-29
+# Author:: Ryohei Watanabe
+# Version:: 1.0 2008-02-22
 # Copyright:: Ryohei Watanabe
 # License:: Rubyライセンスに準拠
 #
@@ -50,10 +51,14 @@ require 'RMagick'
 #==== 中心に画像を重ねる
 #   sample.pngを中心に合成
 #   image.composite_center('sample.png')
+#
+#=== 開発履歴
+#* 1.0 2008-02-22
+#  * とりあえず作成してみた 
 class SimpleImage
   DEFAULT_QUALITY = 95
 
-  # 保存先のパス
+  # path:: 保存先のパス
   # from_fileで生成された場合、読み込んだファイルのパスが設定される
   # from_blobで生成された場合は設定されないので、saveメソッドを実行する前に
   # pathに保存先のパスを設定しておく必要がある
@@ -105,8 +110,7 @@ class SimpleImage
   #
   #戻り値 :: 画像データ(blob)
   def content
-    quality = @quality
-    @image.to_blob {self.quality = quality}
+    @image.to_blob
   end
 
   #=== ContentTypeを返す
@@ -179,7 +183,9 @@ class SimpleImage
   #=== JPEGに変換する
   def to_jpeg
     unless @image.format == "JPEG"
-      @image.format = "JPEG"
+      @image.format = 'JPEG'
+      quality = @quality
+      @image = Magick::Image.from_blob(@image.to_blob {self.quality = quality}).first
     end
   end
 
@@ -397,6 +403,20 @@ class SimpleImage
     info.join(', ')
   end
 
+  # コメントを設定する
+  #
+  #_comment_:: コメント
+  def comment=(comment)
+    @image['comment'] = comment
+  end
+  
+  # コメントを返す
+  #
+  #戻り値:: コメント
+  def comment
+    @image['comment']
+  end
+  
 private
   def initialize(image)
     @image = image
